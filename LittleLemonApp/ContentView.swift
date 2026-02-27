@@ -16,6 +16,9 @@ struct ContentView: View {
         animation: .default)
     private var items: FetchedResults<Item>
 
+    @State private var errorMessage: String?
+    @State private var showingError = false
+
     var body: some View {
         NavigationView {
             List {
@@ -38,6 +41,11 @@ struct ContentView: View {
                     }
                 }
             }
+            .alert("Save Error", isPresented: $showingError) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text(errorMessage ?? "An unknown error occurred.")
+            }
             Text("Select an item")
         }
     }
@@ -50,10 +58,10 @@ struct ContentView: View {
             do {
                 try viewContext.save()
             } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
                 let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+                print("Error adding item: \(nsError), \(nsError.userInfo)")
+                errorMessage = "Failed to save new item: \(nsError.localizedDescription)"
+                showingError = true
             }
         }
     }
@@ -65,10 +73,10 @@ struct ContentView: View {
             do {
                 try viewContext.save()
             } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
                 let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+                print("Error deleting items: \(nsError), \(nsError.userInfo)")
+                errorMessage = "Failed to delete item: \(nsError.localizedDescription)"
+                showingError = true
             }
         }
     }
